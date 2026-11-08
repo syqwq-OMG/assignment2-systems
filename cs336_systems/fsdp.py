@@ -3,6 +3,7 @@
 Weights are gathered on demand (no prefetch buffers), and freed after each
 operation. Custom autograd saves inputs/shards, never gathered full weights.
 """
+
 import math
 import types
 
@@ -22,9 +23,8 @@ class _Weight:
         self.dtype = dtype or parameter.dtype
         flat = parameter.detach().flatten()
         padded = torch.zeros(self.chunk * size, dtype=parameter.dtype, device=parameter.device)
-        padded[:self.numel].copy_(flat)
-        self.parameter = nn.Parameter(padded[rank * self.chunk:(rank + 1) * self.chunk].clone(),
-                                      requires_grad=parameter.requires_grad)
+        padded[: self.numel].copy_(flat)
+        self.parameter = nn.Parameter(padded[rank * self.chunk : (rank + 1) * self.chunk].clone(), requires_grad=parameter.requires_grad)
 
     def gather(self, shard, dtype=None):
         local = shard.to(dtype or self.dtype).contiguous()
@@ -34,20 +34,20 @@ class _Weight:
             parts = [torch.empty_like(local) for _ in range(self.size)]
             dist.all_gather(parts, local)
             full = torch.cat(parts)
-        return full[:self.numel].reshape(self.shape)
+        return full[: self.numel].reshape(self.shape)
 
     def scatter_gradient(self, full):
         # FP32 communication avoids repeated low precision reduction rounding.
         flat = full.float().flatten()
         padded = torch.zeros(self.chunk * self.size, dtype=torch.float32, device=flat.device)
-        padded[:self.numel].copy_(flat)
+        padded[: self.numel].copy_(flat)
         out = torch.empty(self.chunk, dtype=padded.dtype, device=flat.device)
         if self.size == 1:
             out.copy_(padded)
-        elif dist.get_backend() == 'gloo':
+        elif dist.get_backend() == "gloo":
             # Gloo has no portable reduce_scatter support on all torch versions.
             dist.all_reduce(padded)
-            out.copy_(padded[self.rank * self.chunk:(self.rank + 1) * self.chunk])
+            out.copy_(padded[self.rank * self.chunk : (self.rank + 1) * self.chunk])
         else:
             dist.reduce_scatter_tensor(out, padded)
         return out.div_(self.size).to(self.parameter.dtype)
@@ -104,6 +104,7 @@ class FSDP(nn.Module):
     The same graph and layer order must run on every rank. Gloo uses an
     all-reduce/slice fallback; NCCL uses actual reduce-scatter.
     """
+
     def __init__(self, module, compute_dtype=None):
         super().__init__()
         from cs336_basics.model import Embedding, Linear
@@ -146,6 +147,5 @@ class FSDP(nn.Module):
 
     @torch.no_grad()
     def gather_full_params(self):
-        specs = {layer.weight: layer._fsdp_spec for layer in self.module.modules() if hasattr(layer, '_fsdp_spec')}
-        return {name: specs[p].gather(p, p.dtype) if p in specs else p.detach().clone()
-                for name, p in self.module.named_parameters()}
+        specs = {layer.weight: layer._fsdp_spec for layer in self.module.modules() if hasattr(layer, "_fsdp_spec")}
+        return {name: specs[p].gather(p, p.dtype) if p in specs else p.detach().clone() for name, p in self.module.named_parameters()}

@@ -14,6 +14,7 @@ def get_flashattention_autograd_function_pytorch() -> type:
     """
     # For example: return MyFlashAttnAutogradFunctionClass
     from cs336_systems.attention import FlashAttentionPytorch
+
     return FlashAttentionPytorch
 
 
@@ -31,6 +32,7 @@ def get_flashattention_autograd_function_triton() -> type:
     """
     # For example: return MyTritonFlashAttentionAutogradFunctionClass
     from cs336_systems.flash_attention import FlashAttention2
+
     return FlashAttention2
 
 
@@ -53,6 +55,7 @@ def get_ddp(module: torch.nn.Module) -> torch.nn.Module:
     """
     # For example: return DDP(module)
     from cs336_systems.distributed import DDP
+
     return DDP(module)
 
 
@@ -88,6 +91,7 @@ def get_fsdp(module: torch.nn.Module, compute_dtype: torch.dtype | None = None) 
     """
     # For example: return FSDP(module, compute_dtype=compute_dtype)
     from cs336_systems.fsdp import FSDP
+
     return FSDP(module, compute_dtype=compute_dtype)
 
 
@@ -137,4 +141,5 @@ def get_sharded_optimizer(params, optimizer_cls: type[torch.optim.Optimizer], **
         Instance of sharded optimizer.
     """
     from cs336_systems.distributed import ShardedOptimizer
+
     return ShardedOptimizer(params, optimizer_cls, **kwargs)

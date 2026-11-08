@@ -16,10 +16,11 @@ class DDP(nn.Module):
     and zero_grad. Gradient accumulation/no_sync and unused parameters with
     rank-dependent control flow are outside this educational wrapper's contract.
     """
-    def __init__(self, module, mode='overlap'):
+
+    def __init__(self, module, mode="overlap"):
         super().__init__()
-        if mode not in ('overlap', 'individual', 'flat'):
-            raise ValueError('mode must be overlap, individual, or flat')
+        if mode not in ("overlap", "individual", "flat"):
+            raise ValueError("mode must be overlap, individual, or flat")
         self.module, self.mode = module, mode
         self.world_size = world()
         self.pending = []
@@ -27,7 +28,7 @@ class DDP(nn.Module):
         if self.world_size > 1:
             for t in list(module.parameters()) + list(module.buffers()):
                 dist.broadcast(t.data, src=0)
-        if mode == 'overlap':
+        if mode == "overlap":
             for p in module.parameters():
                 if p.requires_grad:
                     self.hooks.append(p.register_post_accumulate_grad_hook(self._ready))
@@ -44,14 +45,14 @@ class DDP(nn.Module):
         return self.module(*args, **kwargs)
 
     def finish_gradient_synchronization(self):
-        if self.mode == 'overlap':
+        if self.mode == "overlap":
             for work, p, buffer in self.pending:
                 work.wait()
                 p.grad.copy_(buffer.div_(self.world_size))
             self.pending.clear()
         elif self.world_size > 1:
             grads = [p.grad for p in self.module.parameters() if p.grad is not None]
-            if self.mode == 'individual':
+            if self.mode == "individual":
                 for grad in grads:
                     dist.all_reduce(grad)
                     grad.div_(self.world_size)
@@ -66,7 +67,7 @@ class DDP(nn.Module):
                     flat.div_(self.world_size)
                     offset = 0
                     for grad in group:
-                        grad.copy_(flat[offset:offset + grad.numel()].view_as(grad))
+                        grad.copy_(flat[offset : offset + grad.numel()].view_as(grad))
                         offset += grad.numel()
 
 
@@ -77,6 +78,7 @@ class ShardedOptimizer(torch.optim.Optimizer):
     its parameters, then broadcasts those parameters to the other replicas.
     Save one state_dict per rank, restoring with the same world size/order.
     """
+
     def __init__(self, params, optimizer_cls, **kwargs):
         self.world_size = world()
         self.rank = dist.get_rank() if dist.is_initialized() else 0
@@ -89,19 +91,19 @@ class ShardedOptimizer(torch.optim.Optimizer):
         self.defaults.update(self.local_optimizer.defaults)
         for group, local in zip(self.param_groups, self.local_optimizer.param_groups):
             for key, value in local.items():
-                if key != 'params':
+                if key != "params":
                     group.setdefault(key, value)
         self.state = self.local_optimizer.state
 
     def _local_group(self, group):
-        return {**group, 'params': [p for p in group['params'] if self.owners[p] == self.rank]}
+        return {**group, "params": [p for p in group["params"] if self.owners[p] == self.rank]}
 
     def add_param_group(self, param_group):
         super().add_param_group(param_group)
         group = self.param_groups[-1]
-        for p in group['params']:
+        for p in group["params"]:
             if p in self.owners:
-                raise ValueError('A parameter cannot appear in multiple groups')
+                raise ValueError("A parameter cannot appear in multiple groups")
             owner = min(range(self.world_size), key=self.loads.__getitem__)
             self.owners[p] = owner
             self.loads[owner] += p.numel()
@@ -110,23 +112,22 @@ class ShardedOptimizer(torch.optim.Optimizer):
 
     def step(self, closure=None, **kwargs):
         for group, local in zip(self.param_groups, self.local_optimizer.param_groups):
-            local.update({k: v for k, v in group.items() if k != 'params'})
+            local.update({k: v for k, v in group.items() if k != "params"})
         loss = self.local_optimizer.step(closure=closure, **kwargs)
         if self.world_size > 1:
             with torch.no_grad():
                 for group in self.param_groups:
-                    for p in group['params']:
+                    for p in group["params"]:
                         dist.broadcast(p.data, src=self.owners[p])
         return loss
 
     def state_dict(self):
-        return {'rank': self.rank, 'world_size': self.world_size,
-                'optimizer': self.local_optimizer.state_dict()}
+        return {"rank": self.rank, "world_size": self.world_size, "optimizer": self.local_optimizer.state_dict()}
 
     def load_state_dict(self, state_dict):
-        if (state_dict['rank'], state_dict['world_size']) != (self.rank, self.world_size):
-            raise ValueError('Restore each rank with its own checkpoint and the same world size')
-        self.local_optimizer.load_state_dict(state_dict['optimizer'])
+        if (state_dict["rank"], state_dict["world_size"]) != (self.rank, self.world_size):
+            raise ValueError("Restore each rank with its own checkpoint and the same world size")
+        self.local_optimizer.load_state_dict(state_dict["optimizer"])
         self.state = self.local_optimizer.state
         for group, local in zip(self.param_groups, self.local_optimizer.param_groups):
-            group.update({k: v for k, v in local.items() if k != 'params'})
+            group.update({k: v for k, v in local.items() if k != "params"})
