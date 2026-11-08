@@ -18,7 +18,7 @@ def dense_attention(q, k, v, causal):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--device", default="cpu")
-    p.add_argument("--implementation", choices=["dense", "compiled", "pytorch", "triton"], default="dense")
+    p.add_argument("--implementation", choices=["dense", "compiled", "pytorch", "triton", "compiled-backward"], default="dense")
     p.add_argument("--length", type=int, default=128)
     p.add_argument("--head-dim", type=int, default=64)
     p.add_argument("--batch", type=int, default=1)
@@ -37,6 +37,10 @@ def main():
         from .flash_attention import FlashAttention2
 
         fn = FlashAttention2.apply
+    elif a.implementation == "compiled-backward":
+        from .attention import FlashAttentionCompiledBackward
+
+        fn = FlashAttentionCompiledBackward.apply
     elif a.implementation == "pytorch":
         from .attention import FlashAttentionPytorch
 

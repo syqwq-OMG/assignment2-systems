@@ -89,3 +89,19 @@ def _worker(rank, store):
 
 def test_distributed_extensions(tmp_path):
     mp.spawn(_worker, args=(str(tmp_path / "rendezvous"),), nprocs=2, join=True)
+
+
+def test_compiled_backward_graph():
+    from cs336_systems.attention import FlashAttentionPytorch, tiled_backward
+
+    torch.manual_seed(8)
+    q, k, v = [torch.randn(1, 17, 16, requires_grad=True) for _ in range(3)]
+    out = FlashAttentionPytorch.apply(q, k, v, True)
+    lse = out.grad_fn.saved_tensors[-1]
+    do = torch.randn_like(out)
+    args = (q, k, v, out, lse, do, True)
+    expected = tiled_backward(*args)
+    # Verify full graph capture without invoking a costly platform compiler.
+    compiled = torch.compile(tiled_backward, backend="eager", fullgraph=True)
+    for actual, ref in zip(compiled(*args), expected):
+        torch.testing.assert_close(actual, ref)

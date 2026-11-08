@@ -58,27 +58,57 @@ class FlashAttentionPytorch(torch.autograd.Function):
     @staticmethod
     def backward(ctx, do):
         q, k, v, out, lse = ctx.saved_tensors
-        dtype = lse.dtype
-        dq, dk, dv = [torch.zeros_like(t, dtype=dtype) for t in (q, k, v)]
-        delta = (out.to(dtype) * do.to(dtype)).sum(-1)
-        nq, d = q.shape[-2:]
-        nk = k.shape[-2]
-        scale = d**-0.5
-        for i in range(0, nq, 32):
-            qi, doi = q[..., i : i + 32, :].to(dtype), do[..., i : i + 32, :].to(dtype)
-            for j in range(0, nk, 32):
-                if ctx.is_causal and j > i + qi.shape[-2] - 1:
-                    break
-                kj, vj = k[..., j : j + 32, :].to(dtype), v[..., j : j + 32, :].to(dtype)
-                s = qi @ kj.transpose(-1, -2) * scale
-                if ctx.is_causal:
-                    rows = torch.arange(i, i + qi.shape[-2], device=q.device)
-                    cols = torch.arange(j, min(j + 32, nk), device=q.device)
-                    s = s.masked_fill(rows[:, None] < cols[None, :], -torch.inf)
-                p = torch.exp(s - lse[..., i : i + 32, None])
-                ds = p * (doi @ vj.transpose(-1, -2) - delta[..., i : i + 32, None]) * scale
-                dq[..., i : i + 32, :] += ds @ kj
-                dk[..., j : j + 32, :] += ds.transpose(-1, -2) @ qi
-                dv[..., j : j + 32, :] += p.transpose(-1, -2) @ doi
-        grads = (dq.to(q.dtype), dk.to(k.dtype), dv.to(v.dtype), None)
+        grads = (*tiled_backward(q, k, v, out, lse, do, ctx.is_causal), None)
+        return grads[: len(ctx.needs_input_grad)]
+
+
+def tiled_backward(q, k, v, out, lse, do, is_causal=False):
+    """Pure tensor implementation, also usable with torch.compile for section 4.2."""
+    dtype = lse.dtype
+    dq, dk, dv = [torch.zeros_like(t, dtype=dtype) for t in (q, k, v)]
+    delta = (out.to(dtype) * do.to(dtype)).sum(-1)
+    nq, d = q.shape[-2:]
+    nk = k.shape[-2]
+    scale = d**-0.5
+    for i in range(0, nq, 32):
+        qi, doi = q[..., i : i + 32, :].to(dtype), do[..., i : i + 32, :].to(dtype)
+        for j in range(0, nk, 32):
+            if is_causal and j > i + qi.shape[-2] - 1:
+                break
+            kj, vj = k[..., j : j + 32, :].to(dtype), v[..., j : j + 32, :].to(dtype)
+            s = qi @ kj.transpose(-1, -2) * scale
+            if is_causal:
+                rows = torch.arange(i, i + qi.shape[-2], device=q.device)
+                cols = torch.arange(j, min(j + 32, nk), device=q.device)
+                s = s.masked_fill(rows[:, None] < cols[None, :], -torch.inf)
+            p = torch.exp(s - lse[..., i : i + 32, None])
+            ds = p * (doi @ vj.transpose(-1, -2) - delta[..., i : i + 32, None]) * scale
+            dq[..., i : i + 32, :] += ds @ kj
+            dk[..., j : j + 32, :] += ds.transpose(-1, -2) @ qi
+            dv[..., j : j + 32, :] += p.transpose(-1, -2) @ doi
+    return dq.to(q.dtype), dk.to(k.dtype), dv.to(v.dtype)
+
+
+# Lazy compilation: importing this module performs no compilation or GPU work.
+compiled_tiled_backward = torch.compile(tiled_backward)
+
+
+class FlashAttentionCompiledBackward(torch.autograd.Function):
+    """Stanford comparison path: Triton forward and compiled PyTorch backward.
+
+    The standalone ECNU submission always uses the all-Triton implementation.
+    Use this path on small shapes: Python tiling can yield large compiled graphs.
+    """
+
+    @staticmethod
+    def forward(ctx, q, k, v, is_causal=False):
+        from .flash_attention import FlashAttention2
+
+        return FlashAttention2.forward(ctx, q, k, v, is_causal)
+
+    @staticmethod
+    def backward(ctx, do):
+        q, k, v, out, lse = ctx.saved_tensors
+        gradients = compiled_tiled_backward(q, k, v, out, lse.reshape(q.shape[:-1]), do.reshape(q.shape), ctx.is_causal)
+        grads = (gradients[0].reshape(ctx.shape), gradients[1].reshape(ctx.kshape), gradients[2].reshape(ctx.kshape), None)
         return grads[: len(ctx.needs_input_grad)]

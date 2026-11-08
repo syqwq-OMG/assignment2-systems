@@ -63,3 +63,12 @@ To submit, run `./test_and_make_submission.sh` . This script will install your
 code's dependencies, run tests, and create a gzipped tarball with the output. We
 should be able to unzip your submitted tarball and run
 `./test_and_make_submission.sh` to verify your test results.
+
+## Implemented solution
+
+See [the step-by-step implementation and knowledge guide](doc/assignment2_guide.md)
+for setup, CPU-first verification, FlashAttention derivations, precision/memory
+accounting, distributed training, checkpointing, and bounded profiling commands.
+The standalone ECNU submission source is
+[`cs336_systems/flash_attention.py`](cs336_systems/flash_attention.py).
+GPU accuracy and efficiency measurements are deferred to the reserved GPU slot.
