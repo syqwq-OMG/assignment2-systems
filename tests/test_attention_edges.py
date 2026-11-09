@@ -68,3 +68,29 @@ def test_triton_sum_gradient(dtype):
     torch.testing.assert_close(actual.float(), ref, atol=tol, rtol=tol)
     for t, r in zip(inputs, refs):
         torch.testing.assert_close(t.grad.float(), r.grad, atol=tol, rtol=tol)
+
+
+@pytest.mark.parametrize("dtype", [torch.float16, torch.bfloat16])
+@pytest.mark.parametrize("nq,nk,d", [(65, 129, 100), (129, 65, 128)])
+@pytest.mark.parametrize("causal", [False, True])
+def test_triton_low_precision_arbitrary_gradient(dtype, nq, nk, d, causal):
+    interpreter = os.environ.get("TRITON_INTERPRET") == "1"
+    if importlib.util.find_spec("triton") is None or not (interpreter or torch.cuda.is_available()):
+        pytest.skip("Requires Triton interpreter or CUDA")
+    if interpreter and dtype == torch.bfloat16:
+        pytest.skip("Triton interpreter does not support BF16 dot products")
+    from cs336_systems.flash_attention import FlashAttention2
+
+    device = "cpu" if interpreter else "cuda"
+    torch.manual_seed(311)
+    inputs = [torch.randn(2, n, d, device=device, dtype=dtype).requires_grad_() for n in (nq, nk, nk)]
+    references = [t.detach().float().requires_grad_() for t in inputs]
+    do = torch.randn_like(inputs[0])
+    expected = dense(*references, causal)
+    expected_grads = torch.autograd.grad(expected, references, do.float())
+    actual = FlashAttention2.apply(*inputs, causal)
+    actual_grads = torch.autograd.grad(actual, inputs, do)
+    tolerance = 3e-3 if dtype == torch.float16 else 3e-2
+    torch.testing.assert_close(actual.float(), expected, atol=tolerance, rtol=tolerance)
+    for grad, ref in zip(actual_grads, expected_grads):
+        torch.testing.assert_close(grad.float(), ref, atol=tolerance, rtol=tolerance)

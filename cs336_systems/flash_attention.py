@@ -217,6 +217,11 @@ class FlashAttention2(torch.autograd.Function):
             args = (q, k, v, do, lse, delta)
             meta = (nq, nk, d, *do.stride(), bd, bm, bn, ctx.is_causal, d**-0.5)
             _backward_q[(triton.cdiv(nq, bm), h)](*args, dq, *meta, num_warps=4, num_stages=2)
-            _backward_kv[(triton.cdiv(nk, bn), h)](*args, dk, dv, *meta, num_warps=4, num_stages=2)
+            # Two gradient accumulators make dK/dV register-heavy. On Ampere,
+            # 32x32 with one stage avoids the severe spills seen at 32x64.
+            # Keep the existing FP32 and other-width configurations unchanged.
+            kv_bm, kv_bn, kv_stages = (32, 32, 1) if q.dtype in (torch.float16, torch.bfloat16) and 64 < d <= 128 else (bm, bn, 2)
+            kv_meta = (nq, nk, d, *do.stride(), bd, kv_bm, kv_bn, ctx.is_causal, d**-0.5)
+            _backward_kv[(triton.cdiv(nk, kv_bn), h)](*args, dk, dv, *kv_meta, num_warps=4, num_stages=kv_stages)
         grads = (dq.reshape(ctx.shape), dk.reshape(ctx.kshape), dv.reshape(ctx.kshape), None)
         return grads[: len(ctx.needs_input_grad)]
