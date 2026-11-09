@@ -1,0 +1,81 @@
+{"settings": {"length": 4096, "head_dim": 100, "heads": 4, "sum_gradient": false, "preset": "confirm"}, "result": {"tile": [32, 64, 4, 2], "kernels": {"forward": {"ms": 0.4638719856739044, "registers": 226, "spills": 0, "shared_bytes": 32768}, "delta": {"ms": 0.01228800043463707, "registers": 48, "spills": 0, "shared_bytes": 128}, "dq": {"ms": 0.6328319907188416, "registers": 255, "spills": 18, "shared_bytes": 32768}, "dkv": {"ms": 14.048255920410156, "registers": 32, "spills": 920, "shared_bytes": 32768}}}}
+{"settings": {"length": 4096, "head_dim": 100, "heads": 4, "sum_gradient": false, "preset": "confirm"}, "result": {"tile": [32, 32, 4, 1], "kernels": {"forward": {"ms": 0.6543359756469727, "registers": 199, "spills": 0, "shared_bytes": 16384}, "delta": {"ms": 0.013311999849975109, "registers": 48, "spills": 0, "shared_bytes": 128}, "dq": {"ms": 0.7275519967079163, "registers": 254, "spills": 0, "shared_bytes": 16384}, "dkv": {"ms": 1.028607964515686, "registers": 255, "spills": 24, "shared_bytes": 24576}}}}
+{
+  "settings": {
+    "length": 4096,
+    "head_dim": 100,
+    "heads": 4,
+    "sum_gradient": false,
+    "preset": "confirm"
+  },
+  "results": [
+    {
+      "tile": [
+        32,
+        64,
+        4,
+        2
+      ],
+      "kernels": {
+        "forward": {
+          "ms": 0.4638719856739044,
+          "registers": 226,
+          "spills": 0,
+          "shared_bytes": 32768
+        },
+        "delta": {
+          "ms": 0.01228800043463707,
+          "registers": 48,
+          "spills": 0,
+          "shared_bytes": 128
+        },
+        "dq": {
+          "ms": 0.6328319907188416,
+          "registers": 255,
+          "spills": 18,
+          "shared_bytes": 32768
+        },
+        "dkv": {
+          "ms": 14.048255920410156,
+          "registers": 32,
+          "spills": 920,
+          "shared_bytes": 32768
+        }
+      }
+    },
+    {
+      "tile": [
+        32,
+        32,
+        4,
+        1
+      ],
+      "kernels": {
+        "forward": {
+          "ms": 0.6543359756469727,
+          "registers": 199,
+          "spills": 0,
+          "shared_bytes": 16384
+        },
+        "delta": {
+          "ms": 0.013311999849975109,
+          "registers": 48,
+          "spills": 0,
+          "shared_bytes": 128
+        },
+        "dq": {
+          "ms": 0.7275519967079163,
+          "registers": 254,
+          "spills": 0,
+          "shared_bytes": 16384
+        },
+        "dkv": {
+          "ms": 1.028607964515686,
+          "registers": 255,
+          "spills": 24,
+          "shared_bytes": 24576
+        }
+      }
+    }
+  ]
+}

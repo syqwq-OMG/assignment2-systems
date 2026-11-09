@@ -1,0 +1,43 @@
+{
+  "settings": {
+    "baseline": "flash_attention_baseline.py",
+    "length": 4096,
+    "heads": 4,
+    "head_dim": 100,
+    "sum_gradient": true
+  },
+  "gpu": "NVIDIA A800 80GB PCIe",
+  "results": {
+    "baseline": {
+      "samples_ms": [
+        15.241215705871582,
+        15.255552291870117,
+        15.270912170410156
+      ],
+      "median_ms": 15.255552291870117,
+      "peak_allocated_bytes": 304611840,
+      "max_difference_from_baseline": {
+        "o": 0.0,
+        "dq": 0.0,
+        "dk": 0.0,
+        "dv": 0.0
+      }
+    },
+    "optimized": {
+      "samples_ms": [
+        1.8216960430145264,
+        1.810431957244873,
+        1.8124799728393555
+      ],
+      "median_ms": 1.8124799728393555,
+      "peak_allocated_bytes": 304611840,
+      "max_difference_from_baseline": {
+        "o": 0.0,
+        "dq": 0.0,
+        "dk": 0.0,
+        "dv": 0.0
+      }
+    }
+  },
+  "speedup": 8.41694943970686
+}

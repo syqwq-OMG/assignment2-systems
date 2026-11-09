@@ -1,0 +1,78 @@
+{
+  "configuration": "A",
+  "heads_checked": 24,
+  "total_heads": 24,
+  "dtype": "torch.float16",
+  "all_pass_1e-3": false,
+  "errors": {
+    "o": {
+      "max_absolute_error": 5.311891436576843e-05,
+      "max_error_index": [
+        8,
+        8764,
+        119
+      ],
+      "actual_at_max": -0.041015625,
+      "reference_at_max": -0.04106874391436577,
+      "rounded_reference_at_max": -0.04107666015625,
+      "finite": true,
+      "passes": {
+        "0.001": true,
+        "0.01": true,
+        "0.1": true
+      }
+    },
+    "grad_q": {
+      "max_absolute_error": 0.00010305643081665039,
+      "max_error_index": [
+        3,
+        9437,
+        93
+      ],
+      "actual_at_max": 0.0775146484375,
+      "reference_at_max": 0.07761770486831665,
+      "rounded_reference_at_max": 0.07763671875,
+      "finite": true,
+      "passes": {
+        "0.001": true,
+        "0.01": true,
+        "0.1": true
+      }
+    },
+    "grad_k": {
+      "max_absolute_error": 0.0011528730392456055,
+      "max_error_index": [
+        21,
+        4830,
+        11
+      ],
+      "actual_at_max": 1.3935546875,
+      "reference_at_max": 1.3924018144607544,
+      "rounded_reference_at_max": 1.392578125,
+      "finite": true,
+      "passes": {
+        "0.001": false,
+        "0.01": true,
+        "0.1": true
+      }
+    },
+    "grad_v": {
+      "max_absolute_error": 0.0006302595138549805,
+      "max_error_index": [
+        0,
+        15878,
+        0
+      ],
+      "actual_at_max": 1.1767578125,
+      "reference_at_max": 1.176127552986145,
+      "rounded_reference_at_max": 1.17578125,
+      "finite": true,
+      "passes": {
+        "0.001": true,
+        "0.01": true,
+        "0.1": true
+      }
+    }
+  },
+  "peak_allocated_bytes": 2113929216
+}

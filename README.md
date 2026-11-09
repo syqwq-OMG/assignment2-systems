@@ -71,4 +71,7 @@ for setup, CPU-first verification, FlashAttention derivations, precision/memory
 accounting, distributed training, checkpointing, and bounded profiling commands.
 The standalone ECNU submission source is
 [`cs336_systems/flash_attention.py`](cs336_systems/flash_attention.py).
-GPU accuracy and efficiency measurements are deferred to the reserved GPU slot.
+Real-GPU validation and bounded optimization results are recorded in
+[the November 9 GPU report](doc/gpu_optimization_2026-11-09.md): 29 GPU attention
+tests pass and the A-sized benchmark improves 8.63x. Full course A passes the
+1e-2 accuracy tier; full B/C evaluation remains outstanding.

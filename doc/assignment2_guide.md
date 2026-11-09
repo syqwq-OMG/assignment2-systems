@@ -1,5 +1,7 @@
 # Assignment 2: implementation and learning guide
 
+**November 9 follow-up:** see [the real-GPU optimization report](gpu_optimization_2026-11-09.md) for 29 passing CUDA tests, an 8.63x A-sized speedup, full-A accuracy at the 1e-2 tier, and bounded B/C head checks. The original November 8 verification record below is historical.
+
 ## 1. Scope and completion status
 
 This guide accompanies the code implementation, not a completed empirical writeup. Sources are the repository `README.md` (there is no `readmd.md`), the 48-page `cs336_assignment2_systems.pdf`, and both original files under `doc/`: `FA2.md` and `login_method.md`.
@@ -20,7 +22,7 @@ The ECNU course task in `FA2.md` takes priority for the standalone submission: T
 | Compilation with no GPU execution | `python -m scripts.compile_attention` |
 | Test integration | `tests/adapters.py` |
 
-No shared evaluator/data files were modified, no shared Python packages were installed or upgraded, no large reference datasets were loaded, and no CUDA kernels were launched during this implementation session. GPU efficiency, full A/B/C accuracy, real device memory peaks, BF16 device correctness, NCCL execution, and leaderboard results remain unmeasured. The B200 leaderboard is a separate optimization exercise, not a performance result supplied by this implementation. The upstream `torch.compile` backward exercise is available as `FlashAttentionCompiledBackward` and attention benchmark `--implementation compiled-backward`; the standalone course submission uses the explicit tiled Triton backward kernels. The ordinary PyTorch reference stays eager for transparent debugging. Full graph capture of the tensor backward is tested with the eager compiler backend; optimized Inductor timing remains unmeasured.
+No shared evaluator/data files or shared dependencies were modified. The November 8 implementation was verified on CPU only. On November 9, all 29 CUDA attention tests passed, including BF16; bounded GPU benchmarks and full-A/partial-B/C reference checks were performed. Full B/C evaluation, official efficiency rankings, NCCL execution, and leaderboard results remain unmeasured; see the GPU report for precise coverage and the measured 1e-2 accuracy tier on full A. The B200 leaderboard is a separate optimization exercise, not a performance result supplied by this implementation. The upstream `torch.compile` backward exercise is available as `FlashAttentionCompiledBackward` and attention benchmark `--implementation compiled-backward`; the standalone course submission uses the explicit tiled Triton backward kernels. The ordinary PyTorch reference stays eager for transparent debugging. Full graph capture of the tensor backward is tested with the eager compiler backend; optimized Inductor timing remains unmeasured.
 
 ## 2. Step-by-step reproduction
 
@@ -94,7 +96,7 @@ The target is explicitly CUDA compute capability 8.0, so these commands need the
 
 ### Step 6: during your slot, perform small device checks
 
-These are instructions for a later GPU session, not commands executed today:
+Use these small checks to reproduce the GPU validation; the November 9 report records the commands and coverage actually exercised:
 
 ```bash
 OMP_NUM_THREADS=2 python -m pytest tests/test_attention.py tests/test_attention_edges.py -q
@@ -159,7 +161,7 @@ Start with `m=-inf`, `ell=0`, `a=0`. Finish with `O=a/ell` and `L=m+log(ell)`. S
 
 Each Triton program owns one `(query_tile,head)` pair. It loads Q once, walks through K/V tiles, updates the three online buffers, and writes its output and L once. The implementation uses masked pointer grids rather than block pointers to support D=100 and uneven sequence tails explicitly.
 
-`BM=32`, `BN=64`, four warps, and two pipeline stages are fixed conservative defaults. D is padded to `max(16,next_power_of_2(D))` within the tile; padding lanes are zeros, not extra features in the attention scale. For D=100 the internal width is 128, but the scale remains `1/sqrt(100)` and only 100 features are stored.
+`BM=32`, `BN=64`, four warps, and two pipeline stages remain the forward/dQ defaults. Following measured Ampere tuning on November 9, dK/dV uses `BM=32`, `BN=32`, four warps, and one stage for FP16/BF16 with `64 < D <= 128`, reducing register spills. Other dK/dV cases keep the original configuration. D is padded to `max(16,next_power_of_2(D))` within the tile; padding lanes are zeros, not extra features in the attention scale. For D=100 the internal width is 128, but the scale remains `1/sqrt(100)` and only 100 features are stored.
 
 Triton `tl.constexpr` parameters are compile-time specializations, permitting static tile shapes and eliminating the unused causal branch. `program_id(0)` selects a query or key tile; `program_id(1)` selects a flattened batch/head index. Masked loads supply zeros outside real storage, and invalid score columns are set to negative infinity. Output stores mask both sequence and feature tails. Head indices are cast to int64 **before** multiplying strides: configuration C has more than 2^31 elements, so int32 element offsets overflow even when the byte pointers themselves are 64-bit.
 
@@ -186,7 +188,7 @@ Autograd calls `forward(ctx,...)` without tracking its internal operations. `ctx
 
 FP16 uses 1 sign bit, 5 exponent bits, and 10 fraction bits; BF16 uses 1/8/7. FP32 uses 1/8/23. BF16 has a wider range than FP16 but less precision near one. FP32 accumulation is valuable even when multiplication inputs are low precision: repeatedly adding a small value into a large FP16 partial sum can eventually stop changing it. Converting a previously rounded input to FP32 improves accumulation, but does not restore the lost input bits.
 
-The kernels keep maxima, denominators, output accumulators, Delta, and gradient accumulators in FP32. For FP16/BF16 inputs, probability/score-gradient tiles are converted to the multiplication input dtype before tensor-core dot products. For FP32 inputs, `input_precision='tf32x3'` requests a more accurate decomposition than a single TF32 multiply. These choices need device accuracy validation; the interpreter does not model all tensor-core rounding.
+The kernels keep maxima, denominators, output accumulators, Delta, and gradient accumulators in FP32. For FP16/BF16 inputs, probability/score-gradient tiles are converted to the multiplication input dtype before tensor-core dot products. For FP32 inputs, `input_precision='tf32x3'` requests a more accurate decomposition than a single TF32 multiply. The real-device tests passed on November 9, while the original FP32 course references exposed FP16 quantization error in dK. The interpreter does not model all tensor-core rounding.
 
 For config C, `E=256*131072*100=3,355,443,200` elements. One FP32 tensor is exactly 12.5 GiB, and one FP16 tensor is 6.25 GiB. The three inputs, output, and three gradients require seven such tensors:
 
@@ -202,7 +204,7 @@ The FP16 total leaves room for autograd temporaries, allocator/context overhead,
 
 `O.sum().backward()` usually supplies a tensor backed by a scalar with zero strides. Calling `.contiguous()` would allocate another entire output-sized tensor. The kernels instead receive the actual batch/row/feature strides, including zero, and load G directly. For general multi-dimensional leading layouts, `reshape` may still need a copy; the evaluator's `[H,N,D]` layout does not.
 
-The ECNU metric uses absolute error with `rtol=0` and chooses the worst threshold across outputs/configurations. Comparing FP16 computation against already FP16-rounded inputs is only a kernel check. To assess the course grade, compare against the original FP32 reference as well: input conversion itself introduces error. FP16 is a memory-conscious starting choice, not a measured guarantee of the 1e-3 coefficient. BF16 often introduces more input rounding; full FP32 cannot fit the largest case with ordinary FP32 output/gradients.
+The ECNU metric uses absolute error with `rtol=0` and chooses the worst threshold across outputs/configurations. Comparing FP16 computation against already FP16-rounded inputs is only a kernel check. To assess the course grade, compare against the original FP32 reference as well: input conversion itself introduces error. FP16 is a memory-conscious choice; the full-A GPU check measured a dK error of 0.001153 and therefore passes 1e-2 rather than 1e-3. BF16 often introduces more input rounding; full FP32 cannot fit the largest case with ordinary FP32 output/gradients.
 
 ## 5. DDP and collective communication
 

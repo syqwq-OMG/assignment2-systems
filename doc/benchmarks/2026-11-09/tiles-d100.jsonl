@@ -1,0 +1,150 @@
+{"settings": {"length": 4096, "head_dim": 100, "heads": 4, "sum_gradient": true}, "result": {"tile": [32, 64, 4, 2], "kernels": {"forward": {"ms": 0.4505600035190582, "registers": 226, "spills": 0, "shared_bytes": 32768}, "delta": {"ms": 0.010239999741315842, "registers": 44, "spills": 0, "shared_bytes": 8192}, "dq": {"ms": 0.6036480069160461, "registers": 255, "spills": 16, "shared_bytes": 32768}, "dkv": {"ms": 14.18239974975586, "registers": 32, "spills": 932, "shared_bytes": 32768}}}}
+{"settings": {"length": 4096, "head_dim": 100, "heads": 4, "sum_gradient": true}, "result": {"tile": [64, 64, 4, 2], "kernels": {"forward": {"ms": 0.5017600059509277, "registers": 255, "spills": 36, "shared_bytes": 32768}, "delta": {"ms": 0.010239999741315842, "registers": 44, "spills": 0, "shared_bytes": 8192}, "dq": {"ms": 10.8154878616333, "registers": 32, "spills": 1120, "shared_bytes": 32768}, "dkv": {"ms": 15.807488441467285, "registers": 32, "spills": 1646, "shared_bytes": 49152}}}}
+{"settings": {"length": 4096, "head_dim": 100, "heads": 4, "sum_gradient": true}, "result": {"tile": [64, 64, 8, 2], "kernels": {"forward": {"ms": 0.6338559985160828, "registers": 255, "spills": 0, "shared_bytes": 32768}, "delta": {"ms": 0.010239999741315842, "registers": 44, "spills": 0, "shared_bytes": 8192}, "dq": {"ms": 3.4641919136047363, "registers": 128, "spills": 322, "shared_bytes": 32768}, "dkv": {"ms": 13.282303810119629, "registers": 32, "spills": 868, "shared_bytes": 49152}}}}
+{"settings": {"length": 4096, "head_dim": 100, "heads": 4, "sum_gradient": true}, "result": {"tile": [128, 64, 8, 2], "kernels": {"forward": {"ms": 0.4034560024738312, "registers": 255, "spills": 0, "shared_bytes": 32768}, "delta": {"ms": 0.010239999741315842, "registers": 44, "spills": 0, "shared_bytes": 8192}, "dq": {"ms": 1.1376639604568481, "registers": 255, "spills": 150, "shared_bytes": 65536}, "dkv": {"ms": 3.6464641094207764, "registers": 128, "spills": 532, "shared_bytes": 81920}}}}
+{
+  "settings": {
+    "length": 4096,
+    "head_dim": 100,
+    "heads": 4,
+    "sum_gradient": true
+  },
+  "results": [
+    {
+      "tile": [
+        32,
+        64,
+        4,
+        2
+      ],
+      "kernels": {
+        "forward": {
+          "ms": 0.4505600035190582,
+          "registers": 226,
+          "spills": 0,
+          "shared_bytes": 32768
+        },
+        "delta": {
+          "ms": 0.010239999741315842,
+          "registers": 44,
+          "spills": 0,
+          "shared_bytes": 8192
+        },
+        "dq": {
+          "ms": 0.6036480069160461,
+          "registers": 255,
+          "spills": 16,
+          "shared_bytes": 32768
+        },
+        "dkv": {
+          "ms": 14.18239974975586,
+          "registers": 32,
+          "spills": 932,
+          "shared_bytes": 32768
+        }
+      }
+    },
+    {
+      "tile": [
+        64,
+        64,
+        4,
+        2
+      ],
+      "kernels": {
+        "forward": {
+          "ms": 0.5017600059509277,
+          "registers": 255,
+          "spills": 36,
+          "shared_bytes": 32768
+        },
+        "delta": {
+          "ms": 0.010239999741315842,
+          "registers": 44,
+          "spills": 0,
+          "shared_bytes": 8192
+        },
+        "dq": {
+          "ms": 10.8154878616333,
+          "registers": 32,
+          "spills": 1120,
+          "shared_bytes": 32768
+        },
+        "dkv": {
+          "ms": 15.807488441467285,
+          "registers": 32,
+          "spills": 1646,
+          "shared_bytes": 49152
+        }
+      }
+    },
+    {
+      "tile": [
+        64,
+        64,
+        8,
+        2
+      ],
+      "kernels": {
+        "forward": {
+          "ms": 0.6338559985160828,
+          "registers": 255,
+          "spills": 0,
+          "shared_bytes": 32768
+        },
+        "delta": {
+          "ms": 0.010239999741315842,
+          "registers": 44,
+          "spills": 0,
+          "shared_bytes": 8192
+        },
+        "dq": {
+          "ms": 3.4641919136047363,
+          "registers": 128,
+          "spills": 322,
+          "shared_bytes": 32768
+        },
+        "dkv": {
+          "ms": 13.282303810119629,
+          "registers": 32,
+          "spills": 868,
+          "shared_bytes": 49152
+        }
+      }
+    },
+    {
+      "tile": [
+        128,
+        64,
+        8,
+        2
+      ],
+      "kernels": {
+        "forward": {
+          "ms": 0.4034560024738312,
+          "registers": 255,
+          "spills": 0,
+          "shared_bytes": 32768
+        },
+        "delta": {
+          "ms": 0.010239999741315842,
+          "registers": 44,
+          "spills": 0,
+          "shared_bytes": 8192
+        },
+        "dq": {
+          "ms": 1.1376639604568481,
+          "registers": 255,
+          "spills": 150,
+          "shared_bytes": 65536
+        },
+        "dkv": {
+          "ms": 3.6464641094207764,
+          "registers": 128,
+          "spills": 532,
+          "shared_bytes": 81920
+        }
+      }
+    }
+  ]
+}

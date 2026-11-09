@@ -1,5 +1,7 @@
 # Validation record, 2026-11-08
 
+This is the original CPU-only record. See [the November 9 GPU report](gpu_optimization_2026-11-09.md) for subsequent CUDA validation and benchmark optimization.
+
 Implementation and verification were performed without CUDA kernel execution.
 The server's GPU was in use, and Sun Yuquan's reservation starts November 9.
 All remote writes were confined to `/ai/lmfs2026/sunyuquan/assignment2-codex`.

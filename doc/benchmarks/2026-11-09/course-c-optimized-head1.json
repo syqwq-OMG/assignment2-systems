@@ -1,0 +1,45 @@
+{
+  "configuration": "C",
+  "coverage": "leading-head subset",
+  "heads_checked": 1,
+  "total_heads": 256,
+  "dtype": "torch.float16",
+  "all_pass_1e-3": true,
+  "errors": {
+    "o": {
+      "max_absolute_error": 1.7937272787094116e-05,
+      "max_error_index": [
+        0,
+        35541,
+        48
+      ],
+      "actual_at_max": -0.020843505859375,
+      "reference_at_max": -0.020861443132162094,
+      "rounded_reference_at_max": -0.0208587646484375,
+      "finite": true,
+      "passes": {
+        "0.001": true,
+        "0.01": true,
+        "0.1": true
+      }
+    },
+    "grad_q": {
+      "max_absolute_error": 3.649294376373291e-05,
+      "max_error_index": [
+        0,
+        91813,
+        59
+      ],
+      "actual_at_max": 0.0066986083984375,
+      "reference_at_max": 0.006735101342201233,
+      "rounded_reference_at_max": 0.00673675537109375,
+      "finite": true,
+      "passes": {
+        "0.001": true,
+        "0.01": true,
+        "0.1": true
+      }
+    }
+  },
+  "peak_allocated_bytes": 557842432
+}

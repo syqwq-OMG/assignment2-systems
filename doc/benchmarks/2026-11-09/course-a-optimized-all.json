@@ -1,0 +1,46 @@
+{
+  "configuration": "A",
+  "heads_checked": 24,
+  "total_heads": 24,
+  "dtype": "torch.float16",
+  "all_pass_1e-3": false,
+  "errors": {
+    "o": {
+      "max_absolute_error": 5.311891436576843e-05,
+      "finite": true,
+      "passes": {
+        "0.001": true,
+        "0.01": true,
+        "0.1": true
+      }
+    },
+    "grad_q": {
+      "max_absolute_error": 0.00010305643081665039,
+      "finite": true,
+      "passes": {
+        "0.001": true,
+        "0.01": true,
+        "0.1": true
+      }
+    },
+    "grad_k": {
+      "max_absolute_error": 0.0011528730392456055,
+      "finite": true,
+      "passes": {
+        "0.001": false,
+        "0.01": true,
+        "0.1": true
+      }
+    },
+    "grad_v": {
+      "max_absolute_error": 0.0006302595138549805,
+      "finite": true,
+      "passes": {
+        "0.001": true,
+        "0.01": true,
+        "0.1": true
+      }
+    }
+  },
+  "peak_allocated_bytes": 1912602624
+}
