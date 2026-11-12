@@ -63,7 +63,8 @@ For the ECNU course described in `doc/FA2.md`, the required single file has been
 placed at `/ai/lmfs2026/data/assignment2/sunyuquan.py`. A local snapshot is in
 [`submission/sunyuquan.py`](submission/sunyuquan.py). See the
 [submission audit](doc/submission_status.md) for requirements and remaining
-full B/C validation. The zip instructions below belong to the upstream Stanford
+efficiency grading. Full B/C correctness now passes the accepted tiers; see
+[the full validation report](doc/full_accuracy_2026-11-13.md). The zip instructions below belong to the upstream Stanford
 assignment.
 
 To submit, run `./test_and_make_submission.sh` . This script will install your
@@ -81,4 +82,6 @@ The standalone ECNU submission source is
 Real-GPU validation and bounded optimization results are recorded in
 [the November 9 GPU report](doc/gpu_optimization_2026-11-09.md): 29 GPU attention
 tests pass and the A-sized benchmark improves 8.63x. Full course A passes the
-1e-2 accuracy tier; full B/C evaluation remains outstanding.
+1e-2 accuracy tier; full B/C correctness was subsequently verified on November 13. The overall
+accuracy coefficient is 0.7, with no OOM in those runs; official efficiency
+grading remains outstanding.

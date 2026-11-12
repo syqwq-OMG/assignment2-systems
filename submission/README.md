@@ -15,6 +15,6 @@ f7dac7738fdd8535728b7fde99c618836aaee081fe2289c94ac06bc93504be67
 ```
 
 The [submission audit](../doc/submission_status.md) records requirements,
-verification, and remaining full B/C evaluation work. If the implementation is
+verification, and the completed full B/C correctness checks. Official efficiency grading remains outstanding. If the implementation is
 changed later, regenerate this snapshot and explicitly update the remote
 submission; neither copy is automatically synchronized.

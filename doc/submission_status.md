@@ -3,7 +3,7 @@
 ## Outcome
 
 **The required code is implemented and the standalone file has been placed in the
-course's specified submission directory. Full evaluation coverage is incomplete.**
+course's specified submission directory. Full A/B/C correctness coverage is now complete; official efficiency grading remains outstanding.**
 This audit follows `doc/FA2.md`, including its embedded evaluator, rather than the
 separate Stanford leaderboard or upstream zip/writeup workflow.
 
@@ -34,7 +34,7 @@ grading service.
 | No prebuilt FlashAttention/SDPA substitution | None in the submitted file |
 | Selectable input dtype | Declares `INPUT_DTYPE=torch.float16`, which the evaluator explicitly permits |
 | Public environment/data/evaluator unchanged | No shared dependency changes or reference-data/evaluator writes |
-| Single 80GB GPU support for every complete configuration | Analytically planned; **full B/C peak memory is not measured** |
+| Single 80GB GPU support for every complete configuration | Full B/C correctness runs completed without OOM on the available 80GB A800; peak allocation 37.696/44.094 GiB |
 
 The submission is standalone: it imports only standard-library modules, PyTorch,
 and Triton, without relative project imports. Static syntax/interface checks and
@@ -47,29 +47,27 @@ November 13. That smoke test used `CUDA_VISIBLE_DEVICES=''` and
 The November 9 real-GPU tests passed **29 attention cases**. The submitted SHA
 matches that tested implementation; no numerical or kernel changes were made
 for packaging. Full configuration A was checked against the original FP32 course
-references, while B and C were each checked only on their first head.
+references. On November 13, the unchanged official evaluator also checked every head of B and C against the exact submitted file.
 
 | Configuration | Coverage | Observed result |
 | --- | --- | --- |
 | A `(24,16384,128)` | All 24 heads, O/dQ/dK/dV | Passes 1e-2; dK maximum error 0.001153 misses 1e-3 |
-| B `(64,130000,128)` | First head only, O/dQ/dK/dV | Subset passes 1e-2 |
-| C `(256,131072,100)` | First head only, O/dQ as in the embedded evaluator | Subset passes 1e-3 |
+| B `(64,130000,128)` | All 64 heads, O/dQ/dK/dV | Passes 1e-2; coefficient 0.7; no OOM |
+| C `(256,131072,100)` | All 256 heads, O/dQ per official reference format | Passes 1e-3; coefficient 1.0; no OOM |
 
-The course's full evaluator still needs to establish:
+The overall observed numerical accuracy coefficient is **0.7**, the minimum
+across full A (0.7), B (0.7), and C (1.0). No OOM occurred in the full B/C
+correctness runs. The remaining unmeasured part is official repeated efficiency
+measurement/class ranking and final grading. The earlier 152.1ms A-shaped
+attention benchmark remains a development result, not an official efficiency
+score.
 
-1. Full 64-head B and 256-head C correctness.
-2. Full-shape GPU peak memory and absence of OOM.
-3. Official efficiency measurements/ranking with the class's uniform settings.
-
-The 1e-2 tier is accepted by the grading rules with an accuracy coefficient of
-0.7. A alone limits the current overall coefficient to **at most 0.7**; unchecked
-B/C results or OOM penalties could reduce the final score. Therefore, “submitted
-implementation” is accurate; “all evaluation cases verified” or “full marks” is
-not. The measured 152.1ms A-shaped attention benchmark is a development result,
-not an official class efficiency score.
-
-No large GPU evaluations were run on November 13, since the documented personal
-reservation had ended and the earlier request called for bounded GPU usage.
+The first November 13 submission audit used only a CPU-interpreter smoke test.
+After the user's explicit follow-up request and a fresh idle-GPU check, full B/C
+correctness tests were run sequentially. They took 56.54 and 192.69 seconds,
+including I/O and reference comparison. See [the full validation report](full_accuracy_2026-11-13.md)
+for logs, hashes, exact memory peaks, and reproduction commands. The submitted
+implementation was not changed.
 
 ## Directory cleanup
 

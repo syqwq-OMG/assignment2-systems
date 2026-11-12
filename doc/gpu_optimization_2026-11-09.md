@@ -1,5 +1,7 @@
 # Real-GPU validation and optimization, November 9, 2026
 
+**Follow-up:** full B/C correctness and memory checks were completed on November 13. See [the full validation report](full_accuracy_2026-11-13.md); the subset-only coverage below records the original November 9 work.
+
 ## GPU availability
 
 At 14:52 CST, the assignment-2 endpoint (`172.23.166.144:32343`) exposed one

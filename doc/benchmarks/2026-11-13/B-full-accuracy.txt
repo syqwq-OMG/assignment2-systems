@@ -1,0 +1,14 @@
+Student INPUT_DTYPE: torch.float16
+GPU: NVIDIA A800 80GB PCIe
+Configuration: (64, 130000, 128)
+
+[ACCURACY] H=64 N=130000 D=128
+  Input dtype: torch.float16
+  Reference format: original seven-array NPZ
+  o       max_error=2.226885e-05 atol=0.001 coefficient=1.0
+  grad_q  max_error=6.112456e-05 atol=0.001 coefficient=1.0
+  grad_k  max_error=1.463294e-03 atol=0.01 coefficient=0.7
+  grad_v  max_error=7.860661e-04 atol=0.001 coefficient=1.0
+  Worst atol: 0.01
+ACCURACY_COEFFICIENT: 0.7
+RESULT_METADATA={"configuration": "B", "exit_code": 0, "wall_seconds": 56.54342629946768, "peak_allocated_bytes": 40475557888, "peak_reserved_bytes": 40552628224, "student_sha256": "f7dac7738fdd8535728b7fde99c618836aaee081fe2289c94ac06bc93504be67", "evaluator_sha256": "5807dd0a205af62ddd00cf3a0e5fa143eb7430587b2765ee1bb9959a8bbd8b6d"}

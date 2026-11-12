@@ -5,7 +5,7 @@
 **November 13 submission:** the standalone file is now in
 `/ai/lmfs2026/data/assignment2/sunyuquan.py`, and the personal working directory
 is `/ai/lmfs2026/sunyuquan/assignment2`. See [the submission audit](submission_status.md)
-for the completion assessment and remaining full B/C evaluation.
+for the completion assessment. Full B/C correctness was subsequently verified on November 13; see [the full validation report](full_accuracy_2026-11-13.md). Official efficiency grading remains outstanding.
 
 ## 1. Scope and completion status
 
@@ -27,7 +27,7 @@ The ECNU course task in `FA2.md` takes priority for the standalone submission: T
 | Compilation with no GPU execution | `python -m scripts.compile_attention` |
 | Test integration | `tests/adapters.py` |
 
-No shared evaluator/data files or shared dependencies were modified. The November 8 implementation was verified on CPU only. On November 9, all 29 CUDA attention tests passed, including BF16; bounded GPU benchmarks and full-A/partial-B/C reference checks were performed. Full B/C evaluation, official efficiency rankings, NCCL execution, and leaderboard results remain unmeasured; see the GPU report for precise coverage and the measured 1e-2 accuracy tier on full A. The B200 leaderboard is a separate optimization exercise, not a performance result supplied by this implementation. The upstream `torch.compile` backward exercise is available as `FlashAttentionCompiledBackward` and attention benchmark `--implementation compiled-backward`; the standalone course submission uses the explicit tiled Triton backward kernels. The ordinary PyTorch reference stays eager for transparent debugging. Full graph capture of the tensor backward is tested with the eager compiler backend; optimized Inductor timing remains unmeasured.
+No shared evaluator/data files or shared dependencies were modified. The November 8 implementation was verified on CPU only. On November 9, all 29 CUDA attention tests passed, including BF16; bounded GPU benchmarks and full-A/partial-B/C reference checks were performed. Full B/C correctness and single-run memory were subsequently verified on November 13. Official efficiency rankings, NCCL execution, and leaderboard results remain unmeasured; see the GPU report for precise coverage and the measured 1e-2 accuracy tier on full A. The B200 leaderboard is a separate optimization exercise, not a performance result supplied by this implementation. The upstream `torch.compile` backward exercise is available as `FlashAttentionCompiledBackward` and attention benchmark `--implementation compiled-backward`; the standalone course submission uses the explicit tiled Triton backward kernels. The ordinary PyTorch reference stays eager for transparent debugging. Full graph capture of the tensor backward is tested with the eager compiler backend; optimized Inductor timing remains unmeasured.
 
 ## 2. Step-by-step reproduction
 
