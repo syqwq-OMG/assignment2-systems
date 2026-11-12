@@ -128,7 +128,7 @@ the repository/Basics importable:
 
 ```bash
 source /lmfs2026/env/a1/bin/activate
-cd /ai/lmfs2026/sunyuquan/assignment2-codex
+cd /ai/lmfs2026/sunyuquan/assignment2
 export PYTHONPATH="/lmfs2026/data/assignment2-systems/cs336-basics:$PWD"
 export OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2
 python -m pytest tests/test_attention.py tests/test_attention_edges.py -q
@@ -160,8 +160,8 @@ git show 57a68c3:cs336_systems/flash_attention.py > /tmp/flash_attention_baselin
 
 The tuned code and regression tests are in commit `dbc13ca`. A reviewed tuned
 standalone copy is maintained at
-`/ai/lmfs2026/sunyuquan/assignment2-codex/sunyuquan.py`.
-Formal shared-directory hand-in has not been performed.
+`/ai/lmfs2026/sunyuquan/assignment2/sunyuquan.py`.
+As of November 9, formal shared-directory hand-in had not been performed. The file was subsequently placed in the required directory on November 13; see [the submission audit](submission_status.md).
 
 ## Raw evidence and remaining work
 

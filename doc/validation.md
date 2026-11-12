@@ -4,7 +4,7 @@ This is the original CPU-only record. See [the November 9 GPU report](gpu_optimi
 
 Implementation and verification were performed without CUDA kernel execution.
 The server's GPU was in use, and Sun Yuquan's reservation starts November 9.
-All remote writes were confined to `/ai/lmfs2026/sunyuquan/assignment2-codex`.
+All remote writes were confined to `/ai/lmfs2026/sunyuquan/assignment2`.
 
 ## Exact server environment
 
@@ -75,4 +75,4 @@ occupancy, register spilling, race freedom, throughput, or device peak memory.
 
 The declared FP16 input choice and 64-bit address arithmetic address analytical
 memory/indexing hazards; no full-size accuracy or performance claim is made.
-No formal shared-directory course submission has been made by this session.
+No formal shared-directory submission was made during this November 8 session. The file was subsequently placed in the required directory on November 13; see [the submission audit](submission_status.md).

@@ -2,6 +2,11 @@
 
 **November 9 follow-up:** see [the real-GPU optimization report](gpu_optimization_2026-11-09.md) for 29 passing CUDA tests, an 8.63x A-sized speedup, full-A accuracy at the 1e-2 tier, and bounded B/C head checks. The original November 8 verification record below is historical.
 
+**November 13 submission:** the standalone file is now in
+`/ai/lmfs2026/data/assignment2/sunyuquan.py`, and the personal working directory
+is `/ai/lmfs2026/sunyuquan/assignment2`. See [the submission audit](submission_status.md)
+for the completion assessment and remaining full B/C evaluation.
+
 ## 1. Scope and completion status
 
 This guide accompanies the code implementation, not a completed empirical writeup. Sources are the repository `README.md` (there is no `readmd.md`), the 48-page `cs336_assignment2_systems.pdf`, and both original files under `doc/`: `FA2.md` and `login_method.md`.
@@ -51,8 +56,8 @@ The inspected server runs PyTorch 2.11.0+cu128 and Triton 3.6.0, and exposes one
 Use the persistent personal disk:
 
 ```bash
-mkdir -p /ai/lmfs2026/sunyuquan/assignment2-codex
-cd /ai/lmfs2026/sunyuquan/assignment2-codex
+mkdir -p /ai/lmfs2026/sunyuquan/assignment2
+cd /ai/lmfs2026/sunyuquan/assignment2
 ```
 
 This is the personal working copy used during development. `/lmfs2026/data/assignment2-systems` and `/lmfs2026/data/2-fa2-data` are shared read-only inputs. Do not run package installation commands against `/lmfs2026/env/a1`.
@@ -113,10 +118,10 @@ Only after small device tests pass should the full course evaluator be considere
 The file is self-contained; it imports only Python standard-library modules, PyTorch, and Triton:
 
 ```bash
-cp cs336_systems/flash_attention.py /ai/lmfs2026/sunyuquan/assignment2-codex/sunyuquan.py
+cp cs336_systems/flash_attention.py /ai/lmfs2026/sunyuquan/assignment2/sunyuquan.py
 ```
 
-The evaluator can load it with `importlib` and call `FlashAttention2.apply(q,k,v)`. It also accepts an optional fourth causal flag for the upstream adapters. `INPUT_DTYPE=torch.float16` controls evaluator input conversion; the function itself supports FP32, FP16, and BF16 CUDA tensors. Copy the reviewed file to the course's stated shared hand-in location `/ai/lmfs2026/data/assignment2/sunyuquan.py` when ready for final submission. This session does not claim that formal hand-in has occurred.
+The evaluator can load it with `importlib` and call `FlashAttention2.apply(q,k,v)`. It also accepts an optional fourth causal flag for the upstream adapters. `INPUT_DTYPE=torch.float16` controls evaluator input conversion; the function itself supports FP32, FP16, and BF16 CUDA tensors. The reviewed file was placed at the course's stated shared hand-in location `/ai/lmfs2026/data/assignment2/sunyuquan.py` on November 13. Its checksum matches the implementation and the local submission snapshot. See the submission audit for remaining evaluation coverage.
 
 For the upstream assignment, run tests directly and inspect the exit status before using `test_and_make_submission.sh`. The supplied packaging script intentionally has `pytest ... || true`, so producing a zip does not imply passing tests. Empirical written answers and screenshots belong in the later writeup; do not invent them from analytical expectations.
 

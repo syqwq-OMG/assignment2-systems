@@ -59,6 +59,13 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 ## Submitting
 
+For the ECNU course described in `doc/FA2.md`, the required single file has been
+placed at `/ai/lmfs2026/data/assignment2/sunyuquan.py`. A local snapshot is in
+[`submission/sunyuquan.py`](submission/sunyuquan.py). See the
+[submission audit](doc/submission_status.md) for requirements and remaining
+full B/C validation. The zip instructions below belong to the upstream Stanford
+assignment.
+
 To submit, run `./test_and_make_submission.sh` . This script will install your
 code's dependencies, run tests, and create a gzipped tarball with the output. We
 should be able to unzip your submitted tarball and run
